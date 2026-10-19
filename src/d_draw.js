@@ -42,6 +42,8 @@ function drawJimFront(x,y,s,t,mood='happy'){g.save();g.translate(x,y);g.scale(s,
  g.strokeStyle='#222';g.lineWidth=1.6;g.beginPath();if(mood=='sad'){g.arc(0,12,5,PI*1.15,PI*1.85)}else{g.moveTo(0,3);g.lineTo(0,6);g.arc(-3.5,6,3.5,0,PI*.9);g.moveTo(7,6);g.arc(3.5,6,3.5,0,PI*.9,false)}g.stroke();
  if(mood!='sad'){el(0,10.5,2.4,2,'#e8708a')}
  g.restore()}
+// text on mirrored vehicle art: un-mirror locally so it always reads left-to-right
+function ut(s,x,y,dir,rot=0){g.save();g.translate(x,y);if(dir<0)g.scale(-1,1);if(rot)g.rotate(rot);g.textAlign='center';g.textBaseline='middle';g.fillText(s,0,0);g.restore()}
 // ---------- vehicles & platforms (front is +x; mirrored for leftward lanes)
 function wheels(hw,w){g.fillStyle='#111';for(const xx of [-hw+5,hw-11])for(const yy of [-12.5,9.5])g.fillRect(xx,yy,6,3)}
 function drawVeh(o,x,y,dir,night){const w=o.w,hw=w/2;g.save();g.translate(x+hw,y+T/2);if(dir<0)g.scale(-1,1);
@@ -49,19 +51,19 @@ function drawVeh(o,x,y,dir,night){const w=o.w,hw=w/2;g.save();g.translate(x+hw,y
  if(ty=='bike'||ty=='scooter'){g.fillStyle='#222';g.fillRect(-11,-1.2,22,2.4);el(-10,0,3,1.6,'#111');el(10,0,3,1.6,'#111');if(ty=='scooter'){rr(-9,-5,16,10,4,o.col)}
   el(-1,0,5,7,ty=='bike'?'#2d6cdf':'#444');el(2,0,4,4,ty=='bike'?o.col:'#f1f1f1');if(ty=='bike'){g.fillStyle='#ffde59';g.fillRect(4,-.8,2,1.6)}if(night)el(12,0,1.6,1.6,'#fff7b0')}
  else if(ty=='bus'){rr(-hw+1,-13,w-2,26,5,'#0b4f8a');rr(-hw+1,4,w-2,9,4,'#13a89e');rr(-hw+4,-10,w-8,15,3,'#e9eef2');g.fillStyle='#0b4f8a';g.fillRect(-2,-13,4,26);g.fillStyle='#9aa7b3';for(let i=-hw+10;i<hw-12;i+=14)g.fillRect(i,-7,8,8);
-  rr(hw-8,-11,6,22,2,'#1b2a38');setFont(8);g.fillStyle='#ffd23f';g.textAlign='center';g.textBaseline='middle';g.save();g.translate(hw-5,0);g.rotate(PI/2);g.fillText('44',0,0);g.restore();wheels(hw,w);
+  rr(hw-8,-11,6,22,2,'#1b2a38');setFont(8);g.fillStyle='#ffd23f';g.textAlign='center';g.textBaseline='middle';ut('44',hw-5,0,dir,PI/2);wheels(hw,w);
   el(hw-2,-10,1.8,2,'#fff7b0');el(hw-2,10,1.8,2,'#fff7b0');g.fillStyle='#ff3b30';g.fillRect(-hw+1,-11,2,4);g.fillRect(-hw+1,7,2,4)}
  else if(ty=='truck'||ty=='foodtruck'||ty=='coffee'){const cab=15;rr(hw-cab-1,-11,cab,22,4,ty=='coffee'?'#6b3e26':'#d64545');rr(hw-7,-9,5,18,2,'#1b2a38');
   const bc=ty=='foodtruck'?'#ffcf33':ty=='coffee'?'#f3e3c3':'#f2f2f2';rr(-hw+1,-13,w-cab-3,26,3,bc);g.fillStyle='rgba(0,0,0,.12)';g.fillRect(-hw+1,9,w-cab-3,4);
   if(ty=='foodtruck'){g.fillStyle='#e63946';for(let i=-hw+3;i<hw-cab-4;i+=8)g.fillRect(i,-13,4,4)}
-  const lab=ty=='foodtruck'?'TERIYAKI':ty=='coffee'?'ESPRESSO':'FRESH FISH';setFont(ty=='truck'?7.5:8);g.fillStyle=ty=='coffee'?'#6b3e26':ty=='foodtruck'?'#7a1d1d':'#1d4e89';g.textAlign='center';g.textBaseline='middle';g.fillText(lab,(-hw+1+hw-cab-2)/2,1);
+  const lab=ty=='foodtruck'?'TERIYAKI':ty=='coffee'?'ESPRESSO':'FRESH FISH';setFont(ty=='truck'?7.5:8);g.fillStyle=ty=='coffee'?'#6b3e26':ty=='foodtruck'?'#7a1d1d':'#1d4e89';g.textAlign='center';g.textBaseline='middle';ut(lab,(-hw+1+hw-cab-2)/2,1,dir);
   if(ty=='coffee'){el(-hw+9,-6,3,3,'#fff');}wheels(hw,w);el(hw-1,-9,1.6,2,'#fff7b0');el(hw-1,9,1.6,2,'#fff7b0')}
  else{const col=ty=='taxi'?'#ffb000':o.col;rr(-hw+1,-11,w-2,22,6,col);g.fillStyle='rgba(255,255,255,.18)';g.fillRect(-hw+4,-9,w-8,3);
   rr(hw-14,-8.5,7,17,2,'#1b2a38');rr(-hw+5,-8,5,16,2,'#1b2a38');rr(-hw+10,-8,w-25,16,3,ty=='sport'?'#111':'rgba(0,0,0,.12)');
-  if(ty=='sport'){g.fillStyle='#fff';g.fillRect(-hw+3,-1.5,w-6,3)}if(ty=='taxi'){rr(-4,-4,8,8,1,'#fff');setFont(4.5);g.fillStyle='#000';g.textAlign='center';g.textBaseline='middle';g.fillText('TAXI',0,.3)}
+  if(ty=='sport'){g.fillStyle='#fff';g.fillRect(-hw+3,-1.5,w-6,3)}if(ty=='taxi'){rr(-4,-4,8,8,1,'#fff');setFont(4.5);g.fillStyle='#000';g.textAlign='center';g.textBaseline='middle';ut('TAXI',0,.3,dir)}
   wheels(hw,w);el(hw-2,-8,1.8,2,'#fff7b0');el(hw-2,8,1.8,2,'#fff7b0');g.fillStyle='#ff3b30';g.fillRect(-hw+1,-9,2,4);g.fillRect(-hw+1,5,2,4)}
  g.restore()}
-function drawTrain(x,y,len,dir){const cars=Math.round(len/(T*2.4));for(let i=0;i<cars;i++){const cx=x+i*T*2.4,w=T*2.4-3;rr(cx+1,y+4,w,T-8,5,'#f1f3f5');rr(cx+1,y+T-12,w,4,1,'#1e5fb4');rr(cx+1,y+8,w,3,1,'#2fb37a');g.fillStyle='#8899aa';g.fillRect(cx+w/2-6,y+12,12,8);g.strokeStyle='#333';g.lineWidth=1;g.beginPath();g.moveTo(cx+w/2-5,y+16);g.lineTo(cx+w/2+5,y+12);g.lineTo(cx+w/2+5,y+20);g.stroke();
+function drawTrain(x,y,len,dir){const cars=Math.round(len/(T*2.4));for(let i=0;i<cars;i++){const cx=x+i*T*2.4,w=T*2.4-3;rr(cx+1,y+4,w,T-8,5,'#f1f3f5');rr(cx+1,y+T-12,w,4,1,'#1e5fb4');rr(cx+1,y+8,w,3,1,'#2fb37a');if(i>0){g.fillStyle='#8899aa';g.fillRect(cx+w/2-6,y+12,12,8);g.strokeStyle='#333';g.lineWidth=1;g.beginPath();g.moveTo(cx+w/2-5,y+16);g.lineTo(cx+w/2+5,y+12);g.lineTo(cx+w/2+5,y+20);g.stroke();}
   if(i<cars-1){g.fillStyle='#333';g.fillRect(cx+w+1,y+10,3,T-20)}}
  const fx=dir>0?x+cars*T*2.4-4:x+2;el(fx,y+9,2,2,'#fff7b0');el(fx,y+T-9,2,2,'#fff7b0');setFont(7);g.fillStyle='#1e5fb4';g.textAlign='center';g.textBaseline='middle';g.fillText('LIGHT RAIL',x+T*1.2,y+T/2)}
 function drawLog(x,y,w){rr(x,y+5,w,T-10,9,'#7a4a24');g.fillStyle='#8f5a2d';g.fillRect(x+6,y+8,w-12,4);g.fillStyle='#5e3818';for(let i=x+10;i<x+w-10;i+=17){g.fillRect(i,y+15,9,2);g.fillRect(i+6,y+21,7,2)}
@@ -74,7 +76,7 @@ function drawFerry(x,y,w,dir){g.save();g.translate(x+w/2,y+T/2);if(dir<0)g.scale
  g.fillStyle='rgba(255,255,255,.35)';g.beginPath();g.moveTo(-hw-14,-9);g.lineTo(-hw,-12);g.lineTo(-hw,12);g.lineTo(-hw-14,9);g.fill();
  g.fillStyle='#f5f7f8';g.beginPath();g.moveTo(-hw+2,-13);g.lineTo(hw-12,-13);g.quadraticCurveTo(hw+2,0,hw-12,13);g.lineTo(-hw+2,13);g.closePath();g.fill();
  g.fillStyle='#1f7a4d';g.fillRect(-hw+2,9,w-16,4);g.fillRect(-hw+2,-13,w-16,4);rr(-hw+18,-8,w-46,16,3,'#e3e8eb');rr(-6,-6,14,12,2,'#1f7a4d');el(1,0,3.5,3.5,'#111');
- setFont(7);g.fillStyle='#1f7a4d';g.textAlign='center';g.textBaseline='middle';g.fillText('M/V SALISH',-hw+40,0);g.restore()}
+ setFont(7);g.fillStyle='#1f7a4d';g.textAlign='center';g.textBaseline='middle';ut('M/V SALISH',-hw+40,0,dir);g.restore()}
 function drawOrca(x,y,w,dir,t){g.save();g.translate(x+w/2,y+T/2);if(dir<0)g.scale(-1,1);const hw=w/2,f=Math.sin(t*4)*3;
  g.fillStyle='#111';g.beginPath();g.moveTo(-hw-6,-7+f);g.lineTo(-hw+8,0);g.lineTo(-hw-6,7+f);g.fill();el(0,0,hw-2,11,'#141414');el(hw-14,0,12,9,'#141414');
  el(hw-16,-6,5,2.4,'#fff');el(hw-16,6,5,2.4,'#fff');el(-4,0,14,4,'#2b2b2b');el(-2,0,6,2,'#ddd');

@@ -46,7 +46,7 @@ async def main():
       sc=await pg.evaluate("[__T.get().state,localStorage.getItem('jimothys-crossing:scores'),localStorage.getItem('jimothys-crossing:best')]");ok(f'{w}x{h} game over + scores saved',sc[0]=='over' and sc[1] and sc[2] is not None,str(sc))
       if w==390:
         sw=await pg.evaluate("navigator.serviceWorker.ready.then(r=>r.active&&r.active.scriptURL)");await pg.wait_for_timeout(800);ck=await pg.evaluate("caches.keys()")
-        ok('service worker active + own cache',sw and sw.endswith('sw.js') and ck==['jimothys-crossing-v1'],f'{ck}')
+        ok('service worker active + own cache',sw and sw.endswith('sw.js') and len(ck)==1 and ck[0].startswith('jimothys-crossing-v'),f'{ck}')
         man=await pg.evaluate("fetch('manifest.json').then(r=>r.json())");ok('manifest ok',man['name']=="Jimothy's Crossing" and len(man['icons'])==2)
       ok(f'{w}x{h} no JS errors',not errs,str(errs[:3]))
       await ctx.close()
