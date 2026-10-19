@@ -1,0 +1,16 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#16324f"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Jimothy">
+<title>Jimothy's Crossing</title><style>
+html,body{margin:0;height:100%;overflow:hidden;background:#0b1622;touch-action:none;font-family:"Trebuchet MS","Segoe UI",sans-serif;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}
+canvas{display:block;position:fixed;left:0;top:0;width:100%;height:100%;touch-action:none}
+.tb{position:fixed;top:calc(6px + env(safe-area-inset-top));width:42px;height:42px;border-radius:50%;border:2px solid #fff;color:#fff;font-size:19px;line-height:38px;display:none;z-index:3;padding:0;background:rgba(0,0,0,.55);touch-action:manipulation;-webkit-tap-highlight-color:transparent;cursor:pointer}
+#pause{right:calc(6px + env(safe-area-inset-right))}#mute{right:calc(54px + env(safe-area-inset-right))}#help{right:calc(102px + env(safe-area-inset-right))}
+#panel{position:fixed;inset:0;display:none;z-index:20;background:rgba(0,0,0,.62);align-items:center;justify-content:center;box-sizing:border-box;padding:calc(10px + env(safe-area-inset-top)) calc(10px + env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) calc(10px + env(safe-area-inset-left))}
+#pbox{background:#fffaf0;border:5px solid #2b6cb0;border-radius:18px;width:min(92vw,460px);max-height:100%;overflow:auto;padding:12px 16px;color:#222;font-size:15px;line-height:1.4;touch-action:pan-y;box-sizing:border-box;-webkit-user-select:text;user-select:text}
+#pbox h2{margin:4px 0 8px;text-align:center;color:#2b6cb0}#pbox h3{margin:10px 0 4px;color:#16324f}#pbox ul{margin:4px 0;padding-left:20px}#pbox table{border-collapse:collapse;width:100%;font-size:14px}#pbox td{border:1px solid #ddd;padding:3px 5px}
+#pclose{display:block;margin:12px auto 2px;font-size:18px;font-weight:bold;font-family:inherit;padding:9px 30px;border-radius:24px;border:3px solid #fff;background:#2b6cb0;color:#fff;box-shadow:0 0 0 2px #2b6cb0}
+</style></head><body>
+<canvas id="c" aria-label="Jimothy's Crossing game"></canvas>
+<button id="pause" class="tb" type="button" aria-label="Pause">⏸</button><button id="mute" class="tb" type="button" aria-label="Sound on or off">🔊</button><button id="help" class="tb" type="button" aria-label="How to play">❓</button>
+<div id="panel" role="dialog" aria-modal="true"><div id="pbox"><div id="ptext"></div><button id="pclose" type="button">OK!</button></div></div>
+<script>
