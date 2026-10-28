@@ -11,7 +11,7 @@ import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js'
 const MODE=window.__JC_MODE||'32bit';
 const TIERS={
  '32bit':{res:240,px:true,psx:true,dither:true,tex:32,near:true,seg:.35,lam:true,flat:true,blob:true,fog:1,pitch:53},
- '64bit':{res:300,tex:32,lin:true,seg:.55,lam:true,blob:true,fog:1.6,pitch:53},
+ '64bit':{res:256,tex:32,lin:true,seg:.6,lam:true,blob:true,fog:1,fogNF:[29,50],pitch:53,sat:1.15},
  '2000s':{maxDpr:1,tex:128,seg:.8,phong:true,shadow:1,blob:false,bloom:[.45,.5,.86],fog:.8,msaa:4,pitch:53},
  'modern':{maxDpr:2,tex:256,seg:1,std:true,round:true,shadow:2,bloom:[.35,.6,.9],fog:.6,msaa:4,pitch:53,toon:true},
  'hyperreal':{maxDpr:1.5,tex:512,seg:1.4,std:true,round:true,pbr:true,shadow:2,bloom:[.22,.45,.92],fog:.55,msaa:4,pitch:53}};
@@ -124,7 +124,7 @@ const WEATHER={
  storm:{dk:.24,sky:0x070b18,sun:0x8fa8ff,si:.35,hs:0x22304f,hg:0x08090f,hi:.35,fog:0x0a1020,env:.13,lamps:1,win:1,exp:1.1,wet:1}};
 let curW='',lampLights=[],envDay=null,envDusk=null,envNight=null;
 function setWeather(w){if(w==curW)return;curW=w;const P=WEATHER[w]||WEATHER.day;scene.background=new THREE.Color(P.sky);scene.fog.color.set(P.fog);
- const f=TI.fog;scene.fog.near=(w=='rain'||w=='storm'?16:26)*f+6;scene.fog.far=(w=='rain'||w=='storm'?55:85)*f+10;
+ const f=TI.fog;scene.fog.near=(w=='rain'||w=='storm'?16:26)*f+6;scene.fog.far=(w=='rain'||w=='storm'?55:85)*f+10;if(TI.fogNF){scene.fog.near=TI.fogNF[0]-(w=='rain'||w=='storm'?4:0);scene.fog.far=TI.fogNF[1]-(w=='rain'||w=='storm'?6:0)}
  sun.color.set(P.sun);sun.userData.base=P.si;hemi.color.set(P.hs);hemi.groundColor.set(P.hg);hemi.intensity=P.hi*(TI.pbr?.25:TI.std?.9:1);
  const dusk=w=='dusk';sun.position.set(dusk?-12:-6,dusk?6:14,dusk?-4:8);
  if(TI.std){scene.environment=TI.pbr?(w=='dusk'?envDusk:(w=='night'||w=='storm')?envNight:envDay):envDay;scene.environmentIntensity=TI.pbr?P.env:P.env*.6}
