@@ -8,3 +8,4 @@ import share
 if 'jimothys-crossing' not in share.CFG: share.cfg('jimothys-crossing')
 share.apply('jimothys-crossing','/workspace/jimothys-crossing/index.html')"
 echo built
+python3 /workspace/jimothys-crossing/modes/inject.py /workspace/jimothys-crossing/index.html
