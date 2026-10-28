@@ -399,5 +399,6 @@ async function init(){try{
  try{renderer.compile(scene,camera)}catch(e){}
  R3.ready=true;loading('');
  }catch(e){console.warn('3D graphics failed, showing the original look',e);loading('');R3.ready=false;try{cv.remove()}catch(_){}}}
+const pv=new THREE.Vector3();R3.mapXY=(x,y)=>{pv.set(WX(x),.45,WZ((y-BY)/T-.5)).project(camera);const sx=(pv.x+1)/2*innerWidth,sy=(1-pv.y)/2*innerHeight;return[(sx-OXs)/SC,(sy-OYs)/SC]};
 R3.draw=draw;R3.TI=TI;R3.scene=scene;R3.camera=camera;R3.renderer=renderer;
 init();

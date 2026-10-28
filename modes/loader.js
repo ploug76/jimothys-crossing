@@ -4,8 +4,8 @@
    The 3D looks are drawn by modes/r3d.js under the normal 2D HUD/buttons, so controls never change. */
 (()=>{'use strict';
 const MODES=[['original','Original','The 8-bit original'],['32bit','32-Bit','PS1 / Saturn era 3D'],['64bit','64-Bit','N64 era 3D'],['2000s','2000s 3D','PS2 / GameCube era'],['modern','Modern','Stylized modern 3D'],['hyperreal','Hyperreal','Photoreal lighting & materials']];
-const VER='15';
-const ENABLED=['original','32bit','64bit'];// tiers go live one at a time
+const VER='16';
+const ENABLED=['original','32bit','64bit','2000s'];// tiers go live one at a time
 const q=new URLSearchParams(location.search);let m=(q.get('mode')||'').toLowerCase();if(!MODES.some(x=>x[0]==m&&ENABLED.includes(x[0])))m='original';
 window.__JC_MODE=m;window.__JC_MODES=MODES;
 const label=MODES.find(x=>x[0]==m)[1];
@@ -46,6 +46,8 @@ function overlay2D(){// rain streaks + storm flash (sky / darkness come from the
  if(!G||state=='title')return;const w=G.w;
  if(w=='rain'||w=='storm'){g.strokeStyle='rgba(210,225,255,.38)';g.lineWidth=1;g.beginPath();for(const d of drops){g.moveTo(d.x,d.y);g.lineTo(d.x-d.l*.18,d.y+d.l)}g.stroke()}
  if(w=='storm'){if(!G.flashT||gt>G.flashT){G.flashT=gt+rnd(6,12);G.flashS=gt;if(state=='play'&&!paused)noise(1.2,.25,180,.6,'lowpass',.3)}const fa=1-(gt-G.flashS)/.45;window.__JC_flash=Math.max(0,fa);if(fa>0){g.fillStyle=`rgba(230,240,255,${fa*.3})`;g.fillRect(-400,-OYs/SC,LW+800,BY+BH+OYs/SC)}}else window.__JC_flash=0}
+function popsMapped(ok){if(!ok||!R3map()){drawPops();return}const sv=pops.map(p=>[p.x,p.y]);try{for(const p of pops){const q=window.__R3D.mapXY(p.x,p.y);p.x=q[0];p.y=q[1]}drawPops()}finally{pops.forEach((p,i)=>{p.x=sv[i][0];p.y=sv[i][1]})}}
+const R3map=()=>window.__R3D&&window.__R3D.mapXY;
 function badge(){if(LH<600)return;const s='🎨 '+label.toUpperCase()+' EDITION';const y=LH-16-58+26;txt(s,LW/2,y,fitSize(s,14,LW-40),'#7fe0ff','center',{stroke:4,sc:'#0b1622'})}
 render=function(){UI=[];menuBtns=[];const R=window.__R3D,ok=!!(R&&R.ready);
  g.setTransform(1,0,0,1,0,0);if(ok)g.clearRect(0,0,c.width,c.height);else{g.fillStyle=DARK;g.fillRect(0,0,c.width,c.height)}
@@ -53,6 +55,6 @@ render=function(){UI=[];menuBtns=[];const R=window.__R3D,ok=!!(R&&R.ready);
  if(ok){try{R.draw()}catch(e){console.warn('r3d',e);R.ready=false}overlay2D()}else drawWorld();
  if(ok&&state!='title'){const y=BY+BH+BARH;g.fillStyle=DARK;g.fillRect(-OXs/SC-4,y,innerWidth/SC+8,LH-y+(innerHeight/SC)+8)}
  if(state=='title'){drawTitle();badge()}
- else{drawHUD();if(state=='play'){drawBar();drawControls();if(paused)drawPause();else drawPops()}else if(state=='over')drawOver()}
+ else{drawHUD();if(state=='play'){drawBar();drawControls();if(paused)drawPause();else popsMapped(ok)}else if(state=='over')drawOver()}
  lastUI=UI;BTN=state=='title'?UI.slice():[]};
 })();
