@@ -117,7 +117,7 @@ if(TI.shadow){sun.castShadow=true;const s=TI.shadow==2?2048:1024;sun.shadow.mapS
 const amb=new THREE.AmbientLight(0xffffff,TI.lam?.35:TI.phong?.25:0);scene.add(amb);
 scene.fog=new THREE.Fog(0xbcd8ee,30,90);
 const WEATHER={
- day:{dk:1,sky:0x8ec9f0,sun:0xfff4e0,si:2.3,hs:0xbfe3ff,hg:0x6b5a40,hi:1,fog:0xbcd8ee,env:1,lamps:0,win:0,exp:1},
+ day:{dk:1,sky:0x8ec9f0,sun:0xfff4e0,si:2.3,hs:0xbfe3ff,hg:0x6b5a40,hi:1,fog:0xbcd8ee,env:.8,lamps:0,win:0,exp:1},
  dusk:{dk:.75,sky:0xf0a070,sun:0xffa060,si:1.6,hs:0xf08a5d,hg:0x3b2a6b,hi:.8,fog:0xd8907a,env:.75,lamps:.5,win:.6,exp:1},
  rain:{dk:.62,sky:0x7d8b96,sun:0xdfe6ee,si:.7,hs:0xa0adb8,hg:0x3a3f45,hi:.9,fog:0x7d8b96,env:.55,lamps:.3,win:.3,exp:1.05,wet:1},
  night:{dk:.3,sky:0x0b1530,sun:0x8fa8ff,si:.45,hs:0x2a3a6a,hg:0x0c0f18,hi:.45,fog:0x0d1733,env:.18,lamps:1,win:1,exp:1.1},
@@ -149,7 +149,7 @@ function buildWorld(){
  const wall=M('seawall',{color:0x8a8f96,map:TI.pbr?null:tex('sidewalk'),pbr:'sidewalk'});
  world.add(mesh(box(X1-X0,.5,.25,0),wall,0,-.2,WZ(0)+.5+.12));world.add(mesh(box(X1-X0,.5,.25,0),wall,0,-.2,WZ(6)-.5-.12));
  // hedge row with dens (row 0) and the city beyond
- const hedgeM=M('hedge',{color:TI.pbr?0xffffff:0xffffff,map:TI.pbr?null:tex('hedge'),pbr:'hedge',rough:.9});
+ const hedgeM=M('hedge',{color:TI.pbr?0x7fa860:0xffffff,map:TI.pbr?null:tex('hedge'),pbr:TI.pbr?'grass':null,pbrTint:1,rough:.95,ns:2});
  world.add(planeXZ(X0,X1,WZ(0)-.5,WZ(0)+.5,0,M('grassG',{map:TI.pbr?null:tex('grass'),pbr:'grass',rough:.95}),TI.pbr?.5:1));
  for(let i=0;i<6;i++){const xa=i==0?X0:WX(DENS[i-1])+.55,xb=i==5?X1:WX(DENS[i])-.55;if(xb-xa>.05){const h=mesh(box(xb-xa,.42,.7,.12),hedgeM,(xa+xb)/2,.21,WZ(0)-.05);world.add(h)}}
  // sidewalk + street behind the dens
@@ -238,7 +238,7 @@ function makeVeh(o,dir){const ty=o.type,L=o.w/T-.08,g=new THREE.Group();const gl
   if(ty=='scooter')g.add(mesh(box(.5,.18,.3,.06),M('car'+o.col,{color:o.col,clear:1,rough:.35}),0,.32,0));
   const shirt=M(ty=='bike'?'shirtB':'shirtS',{color:ty=='bike'?0x2d6cdf:0x444444,rough:.85});g.add(mesh(box(.2,.32,.24,.06),shirt,-.02,.55,0));g.add(mesh(sph(.1,10,8),M('skin',{color:0xe0b08a,rough:.7}),.02,.8,0));g.add(mesh(sph(.115,10,8),M('helm'+o.col,{color:ty=='bike'?o.col:0xf1f1f1,rough:.3,gloss:1}),.0,.85,0,1,.75,1));
   lightsOn(g,.66,.12,.3)}
- else if(ty=='bus'){const W=.82;g.add(mesh(box(L,.78,W,.08),M('bus',{color:0x0b4f8a,clear:1,rough:.35}),0,.5,0));g.add(mesh(box(L+.01,.16,W+.01,.04),M('busT',{color:0x13a89e,rough:.4}),0,.3,0));
+ else if(ty=='bus'){const W=.82;g.add(mesh(box(L,.78,W,.08),M('bus',{color:TI.pbr?0x083b68:0x0b4f8a,clear:1,rough:.35}),0,.5,0));g.add(mesh(box(L+.01,.16,W+.01,.04),M('busT',{color:0x13a89e,rough:.4}),0,.3,0));
   g.add(mesh(box(L-.3,.26,W+.012,.03),glass,-.05,.66,0));g.add(mesh(box(.02,.3,W-.15,.02),glass,L/2+.006,.62,0));
   const sign=mesh(box(.02,.12,.4,0),M('bus44',{color:0xffffff,map:labelTex('44','#1b2a38','#ffd23f',64,32),emissive:0xffffff,ei:.4,emap:labelTex('44','#1b2a38','#ffd23f',64,32)}),L/2+.02,.86,0,1,1,1,false);g.add(sign);wheelsOn(g,L,W*.9,.15);lightsOn(g,L,W,.32)}
  else if(ty=='truck'||ty=='foodtruck'||ty=='coffee'){const W=.78,cab=.5;const cm=M('cab'+ty,{color:ty=='coffee'?0x6b3e26:0xd64545,clear:1,rough:.35});g.add(mesh(box(cab,.6,W,.08),cm,L/2-cab/2,.42,0));g.add(mesh(box(.02,.22,W-.14,.02),glass,L/2+.005,.56,0));g.add(mesh(box(cab*.55,.2,W+.01,.02),glass,L/2-cab*.42,.56,0));
@@ -247,17 +247,17 @@ function makeVeh(o,dir){const ty=o.type,L=o.w/T-.08,g=new THREE.Group();const gl
   const bx=new THREE.Mesh(box(L-cab-.06,.82,W+.04,0),[plain,plain,plain,plain,bm,bm]);bx.position.set(-cab/2-.03,.55,0);if(TI.shadow){bx.castShadow=bx.receiveShadow=true}if(TI.psx)[plain,bm].forEach(m=>{});g.add(bx);
   if(ty=='foodtruck'){const aw=M('awn',{color:0xe63946,rough:.7});g.add(mesh(box(L-cab-.2,.05,.18,0),aw,-cab/2,.86,W/2+.1))}
   wheelsOn(g,L,W*.92,.14);lightsOn(g,L,W,.34)}
- else{const W=.66,col=ty=='taxi'?0xffb000:o.col;const body=M('car'+col,{color:col,clear:1,rough:.32,gloss:1});const low=ty=='sport'?.8:1;
+ else{const W=.66,col=ty=='taxi'?0xffb000:o.col;const body=M('car'+col,{color:TI.pbr?new THREE.Color(col).multiplyScalar(.62).getHex():col,clear:1,rough:TI.pbr?.42:.32,metal:TI.pbr?.55:0,gloss:1});const low=ty=='sport'?.8:1;
   g.add(mesh(box(L,.26*low,W,.08),body,0,.22*low+.02,0));g.add(mesh(box(L*(ty=='hatch'?.62:.52),.2*low,W*.9,.08),body,ty=='hatch'?-L*.1:-L*.04,.42*low+.02,0));
   g.add(mesh(box(L*(ty=='hatch'?.6:.5)+.01,.14*low,W*.9+.01,.04),glass,ty=='hatch'?-L*.1:-L*.04,.44*low+.02,0));
   if(ty=='sport')g.add(mesh(box(L+.005,.012,.08,0),M('stripe',{color:0xffffff,rough:.4}),0,.37*low+.02,0,1,1,1,false));
   if(ty=='taxi'){const tl=labelTex('TAXI','#ffffff','#000000',64,24);g.add(mesh(box(.22,.08,.12,.02),M('taxisign',{color:0xffffff,map:tl,emissive:0xffffff,ei:.3,emap:tl}),-.04,.58,0))}
-  wheelsOn(g,L,W,.12);lightsOn(g,L,W,.24)}
+  wheelsOn(g,L,W,.12);lightsOn(g,L,W,.24);if(TI.std){const chrome=M('chrome',{color:0xd8dde2,metal:1,rough:.15,gloss:1}),grille=M('grille',{color:0x202326,rough:.5,metal:.4});g.add(mesh(box(.05,.07,W*.96,.02),chrome,L/2+.01,.13,0));g.add(mesh(box(.05,.07,W*.96,.02),chrome,-L/2-.01,.13,0));g.add(mesh(box(.02,.06,W*.45,.01),grille,L/2+.012,.24,0,1,1,1,false));for(const z of [-W/2-.03,W/2+.03])g.add(mesh(box(.05,.04,.05,.01),body,L*.12,.42*low,z))}}
  g.traverse(m=>{if(m.isMesh){m.material=Array.isArray(m.material)?m.material.map(clipMat):clipMat(m.material)}});
  return g}
 const clipCache=new Map();function clipMat(m){if(m.clippingPlanes)return m;let c=clipCache.get(m);if(!c){c=m.clone();c.clippingPlanes=CLIP;if(m.onBeforeCompile&&TI.psx)psx(c);
  if(headMats.includes(m))headMats.push(c);clipCache.set(m,c)}return c}
-function makeTrain(cars){const g=new THREE.Group(),body=M('lrBody',{color:0xf1f3f5,clear:1,rough:.3,gloss:1}),blue=M('lrBlue',{color:0x1e5fb4,rough:.4}),grn=M('lrGreen',{color:0x2fb37a,rough:.4}),glass=GLASS();
+function makeTrain(cars){const g=new THREE.Group(),body=M('lrBody',{color:TI.pbr?0xc8ccd0:0xf1f3f5,clear:1,rough:.3,gloss:1}),blue=M('lrBlue',{color:0x1e5fb4,rough:.4}),grn=M('lrGreen',{color:0x2fb37a,rough:.4}),glass=GLASS();
  const lr=labelTex('LIGHT RAIL','#f1f3f5','#1e5fb4',192,40);
  for(let i=0;i<cars;i++){const cx=i*2.4+1.2,w=2.3;g.add(mesh(box(w,.95,.84,.1),body,cx,.62,0));g.add(mesh(box(w+.01,.12,.85,.03),blue,cx,.3,0));g.add(mesh(box(w+.01,.06,.85,.02),grn,cx,.92,0));g.add(mesh(box(w-.3,.3,.852,.03),glass,cx,.7,0));
   g.add(mesh(box(1.1,.16,.02,0),M('lrlab',{color:0xffffff,map:lr}),cx,.4,.43,1,1,1,false));g.add(mesh(box(.2,.25,.2,.02),M('panto',{color:0x333333,metal:.6}),cx,1.2,0));
@@ -269,9 +269,9 @@ function makeLog(o){const L=o.w/T-.1,g=new THREE.Group();const bark=M('bark',{co
  if(TI.seg>=.8)for(let i=0;i<2;i++){const k=mesh(sph(1,8,6),bark,(i?.25:-.3)*L,.22,.12*(i?1:-1),.08,.05,.08);g.add(k)}
  g.traverse(m=>{if(m.isMesh)m.material=Array.isArray(m.material)?m.material.map(clipMat):clipMat(m.material)});return g}
 function makeCrates(o){const n=Math.round(o.w/T),g=new THREE.Group();
- for(let i=0;i<n;i++){let c;if(TI.pbr&&models.crate){c=models.crate.clone()}else{c=mesh(box(.84,.6,.84,.03),M('crate',{map:tex('crate'),pbr:'planks',rough:.85}));c.position.y=.1}c.position.x=i-(n-1)/2;g.add(c)}
+ for(let i=0;i<n;i++){let c;if(TI.pbr&&models.crate){c=models.crate.clone();c.position.y=-.2}else{c=mesh(box(.84,.6,.84,.03),M('crate',{map:tex('crate'),pbr:'planks',rough:.85}));c.position.y=.1}c.position.x=i-(n-1)/2;g.add(c)}
  g.traverse(m=>{if(m.isMesh)m.material=clipMat(m.material)});return g}
-function makeFerry(o){const L=o.w/T-.1,g=new THREE.Group(),wh=M('ferryW',{color:0xf5f7f8,clear:1,rough:.3,gloss:1}),gr=M('ferryG',{color:0x1f7a4d,rough:.45});
+function makeFerry(o){const L=o.w/T-.1,g=new THREE.Group(),wh=M('ferryW',{color:TI.pbr?0xc9ced2:0xf5f7f8,clear:1,rough:.3,gloss:1}),gr=M('ferryG',{color:0x1f7a4d,rough:.45});
  g.add(mesh(box(L-.4,.4,.92,.08),wh,-.2,.05,0));const bow=mesh(cyl(.46,.46,.4,TI.pbr?24:8,false),wh,L/2-.42,.05,0,.9,1,1);g.add(bow);
  g.add(mesh(box(L-.38,.08,.94,.02),gr,-.2,.2,0));g.add(mesh(box(L-1.4,.38,.7,.06),wh,-.4,.45,0));g.add(mesh(box(L-1.35,.12,.71,.03),GLASS(),-.4,.5,0));
  g.add(mesh(box(.6,.32,.5,.05),gr,.2,.8,0));g.add(mesh(cyl(.1,.12,.4,10),M('stack',{color:0x111111}),-.2,1,0));
@@ -386,10 +386,10 @@ async function loadHyper(){const base='modes/hr/';let done=0;const tot=38;const 
  const H=f=>new Promise(res=>new RGBELoader().load(base+'hdr/'+f,t=>{t.mapping=THREE.EquirectangularReflectionMapping;const e=pm.fromEquirectangular(t).texture;t.dispose();tick();res(e)},undefined,()=>{tick();res(null)}));
  [envDay,envDusk,envNight]=await Promise.all([H('day.hdr'),H('dusk.hdr'),H('night.hdr')]);
  const {GLTFLoader}=await import('three/addons/loaders/GLTFLoader.js');const gl=new GLTFLoader();
- const Ld=(n,size,axis='y')=>new Promise(res=>gl.load(base+'models/'+n+'/'+n+'.gltf',g=>{const o=g.scene;const bb=new THREE.Box3().setFromObject(o),sz=bb.getSize(new THREE.Vector3());const s=size/(axis=='y'?sz.y:Math.max(sz.x,sz.z));o.scale.setScalar(s);
+ const Ld=(n,size,axis='y')=>new Promise(res=>gl.load(base+'models/'+n+'/'+n+'.gltf',g=>{const o=g.scene;const bb=new THREE.Box3().setFromObject(o),sz=bb.getSize(new THREE.Vector3());if(Array.isArray(size))o.scale.set(size[0]/sz.x,size[1]/sz.y,size[2]/sz.z);else o.scale.setScalar(size/(axis=='y'?sz.y:Math.max(sz.x,sz.z)));
   const bb2=new THREE.Box3().setFromObject(o),c=bb2.getCenter(new THREE.Vector3());o.position.set(-c.x,-bb2.min.y,-c.z);const w=new THREE.Group();w.add(o);w.userData.h=bb2.max.y-bb2.min.y;o.traverse(m=>{if(m.isMesh){m.castShadow=m.receiveShadow=true}});tick();res(w)},undefined,()=>{tick();res(null)}));
- const [can,crate,lamp,bx]=await Promise.all([Ld('metal_trash_can',.78),Ld('wooden_crate_01',.82,'xz'),Ld('street_lamp_01',1.9),Ld('cardboard_box_01',.5,'xz')]);
- if(can){models.can=can;models.canH=can.userData.h}if(crate){crate.position.y=-.18;models.crate=crate}if(lamp){models.lamp=lamp;models.lampH=lamp.userData.h-.12}if(bx){models.box=bx;models.boxH=bx.userData.h}
+ const [can,crate,lamp,bx]=await Promise.all([Ld('metal_trash_can',.78),Ld('wooden_crate_01',[.84,.62,.84]),Ld('street_lamp_01',1.9),Ld('cardboard_box_01',.5,'xz')]);
+ if(can){models.can=can;models.canH=can.userData.h}if(crate){models.crate=crate}if(lamp){models.lamp=lamp;models.lampH=lamp.userData.h-.12}if(bx){models.box=bx;models.boxH=bx.userData.h}
  pm.dispose()}
 async function init(){try{
  if(TI.pbr)await loadHyper();
