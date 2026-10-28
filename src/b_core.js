@@ -28,7 +28,7 @@ function tbRects(){return [...document.querySelectorAll('.tb')].filter(e=>getCom
 const ov=(a,b,p=0)=>a.x<b.x+b.w+p&&b.x<a.x+a.w+p&&a.y<b.y+b.h+p&&b.y<a.y+a.h+p;
 // ---------- audio
 let ac=null,master=null,musicGain=null,sfxGain=null,muted=ST.get('mute',false);
-function A(){try{if(!ac){ac=new(window.AudioContext||webkitAudioContext)();master=ac.createGain();master.connect(ac.destination);sfxGain=ac.createGain();sfxGain.gain.value=.55;sfxGain.connect(master);musicGain=ac.createGain();musicGain.gain.value=.2;musicGain.connect(master);master.gain.value=muted?0:1}
+function A(){try{if(!ac){ac=new(window.AudioContext||webkitAudioContext)();master=ac.createGain();master.connect(ac.destination);sfxGain=ac.createGain();sfxGain.gain.value=.55;sfxGain.connect(master);musicGain=ac.createGain();musicGain.gain.value=.1;musicGain.connect(master);master.gain.value=muted?0:1}
  if(ac.state=='suspended')ac.resume()}catch(e){}return ac}
 function setMute(m){muted=m;ST.set('mute',m);if(master)master.gain.value=m?0:1;$('mute').textContent=m?'🔇':'🔊'}
 function tone(f,d=.1,type='square',v=.3,f2=0,dl=0,dest){const a=ac;if(!a||muted||a.state!='running')return;const t=a.currentTime+dl,o=a.createOscillator(),gn=a.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(Math.max(20,f2),t+d);
