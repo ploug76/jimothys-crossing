@@ -4,8 +4,8 @@
    The 3D looks are drawn by modes/r3d.js under the normal 2D HUD/buttons, so controls never change. */
 (()=>{'use strict';
 const MODES=[['original','Original','The 8-bit original'],['32bit','32-Bit','PS1 / Saturn era 3D'],['64bit','64-Bit','N64 era 3D'],['2000s','2000s 3D','PS2 / GameCube era'],['modern','Modern','Stylized modern 3D'],['hyperreal','Hyperreal','Photoreal lighting & materials']];
-const VER='16';
-const ENABLED=['original','32bit','64bit','2000s'];// tiers go live one at a time
+const VER='17';
+const ENABLED=['original','32bit','64bit','2000s','modern'];// tiers go live one at a time
 const q=new URLSearchParams(location.search);let m=(q.get('mode')||'').toLowerCase();if(!MODES.some(x=>x[0]==m&&ENABLED.includes(x[0])))m='original';
 window.__JC_MODE=m;window.__JC_MODES=MODES;
 const label=MODES.find(x=>x[0]==m)[1];

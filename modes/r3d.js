@@ -12,9 +12,9 @@ const MODE=window.__JC_MODE||'32bit';
 const TIERS={
  '32bit':{res:240,px:true,psx:true,dither:true,tex:32,near:true,seg:.35,lam:true,flat:true,blob:true,fog:1,pitch:53},
  '64bit':{res:256,tex:32,lin:true,seg:.6,lam:true,blob:true,fog:1,fogNF:[29,50],pitch:53,sat:1.15},
- '2000s':{maxDpr:1,tex:128,seg:.8,phong:true,shadow:1,blob:false,bloom:[.45,.5,.86],fog:.8,msaa:4,pitch:53},
- 'modern':{maxDpr:2,tex:256,seg:1,std:true,round:true,shadow:2,bloom:[.35,.6,.9],fog:.6,msaa:4,pitch:53,toon:true},
- 'hyperreal':{maxDpr:1.5,tex:512,seg:1.4,std:true,round:true,pbr:true,shadow:2,bloom:[.22,.45,.92],fog:.55,msaa:4,pitch:53}};
+ '2000s':{maxDpr:1,tex:128,seg:.8,phong:true,shadow:1,blob:false,bloom:[.45,.5,.86],fog:.8,fogNF:[33,68],msaa:4,pitch:53},
+ 'modern':{maxDpr:2,tex:256,seg:1,std:true,round:true,shadow:2,bloom:[.22,.4,.95],fog:.6,fogNF:[36,85],msaa:4,pitch:53,toon:true},
+ 'hyperreal':{maxDpr:1.5,tex:512,seg:1.4,std:true,round:true,pbr:true,shadow:2,bloom:[.22,.45,.92],fog:.55,fogNF:[38,110],msaa:4,pitch:53}};
 const TI=TIERS[MODE]||TIERS['32bit'];
 const R3={ready:false};window.__R3D=R3;
 const loading=t=>{try{window.__JC_loading&&window.__JC_loading(t)}catch(e){}};
@@ -25,7 +25,7 @@ const cv=renderer.domElement;cv.id='c3d';cv.setAttribute('aria-hidden','true');
 cv.style.cssText='position:fixed;left:0;top:0;width:100%;height:100%;display:block;pointer-events:none;touch-action:none'+(TI.px?';image-rendering:pixelated;image-rendering:crisp-edges':'');
 document.body.insertBefore(cv,document.getElementById('c'));
 renderer.outputColorSpace=THREE.SRGBColorSpace;
-renderer.toneMapping=TI.pbr?THREE.ACESFilmicToneMapping:TI.std?THREE.ACESFilmicToneMapping:THREE.NoToneMapping;
+renderer.toneMapping=TI.pbr?THREE.ACESFilmicToneMapping:TI.std?THREE.NeutralToneMapping:THREE.NoToneMapping;
 renderer.toneMappingExposure=TI.pbr?1.0:TI.std?1.05:1;
 if(TI.shadow){renderer.shadowMap.enabled=true;renderer.shadowMap.type=TI.shadow==2?THREE.PCFSoftShadowMap:THREE.BasicShadowMap}
 const scene=new THREE.Scene();
@@ -127,8 +127,8 @@ function setWeather(w){if(w==curW)return;curW=w;const P=WEATHER[w]||WEATHER.day;
  const f=TI.fog;scene.fog.near=(w=='rain'||w=='storm'?16:26)*f+6;scene.fog.far=(w=='rain'||w=='storm'?55:85)*f+10;if(TI.fogNF){scene.fog.near=TI.fogNF[0]-(w=='rain'||w=='storm'?4:0);scene.fog.far=TI.fogNF[1]-(w=='rain'||w=='storm'?6:0)}
  sun.color.set(P.sun);sun.userData.base=P.si;hemi.color.set(P.hs);hemi.groundColor.set(P.hg);hemi.intensity=P.hi*(TI.pbr?.25:TI.std?.9:1);
  const dusk=w=='dusk';sun.position.set(dusk?-12:-6,dusk?6:14,dusk?-4:8);
- if(TI.std){scene.environment=TI.pbr?(w=='dusk'?envDusk:(w=='night'||w=='storm')?envNight:envDay):envDay;scene.environmentIntensity=TI.pbr?P.env:P.env*.6}
- renderer.toneMappingExposure=(TI.pbr?1:TI.std?1.05:1)*P.exp;
+ if(TI.std){scene.environment=TI.pbr?(w=='dusk'?envDusk:(w=='night'||w=='storm')?envNight:envDay):envDay;scene.environmentIntensity=TI.pbr?P.env:P.env*.35}
+ renderer.toneMappingExposure=(TI.pbr?1:TI.std?.92:1)*P.exp;
  for(const L of lampLights)L.intensity=L.userData.base*P.lamps;
  for(const m of lampMats)m.emissiveIntensity=P.lamps?2.2*P.lamps+.2:0.05;
  for(const m of winMats){m.emissiveIntensity=P.win*1.3}
