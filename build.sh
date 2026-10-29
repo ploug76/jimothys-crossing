@@ -9,3 +9,10 @@ if 'jimothys-crossing' not in share.CFG: share.cfg('jimothys-crossing')
 share.apply('jimothys-crossing','/workspace/jimothys-crossing/index.html')"
 echo built
 python3 /workspace/jimothys-crossing/modes/inject.py /workspace/jimothys-crossing/index.html
+# Game controller support (Peter 10/29): re-add the gamepad.js + gamepad-config.js block after every rebuild
+python3 - /workspace/jimothys-crossing/index.html <<'PY'
+import sys,re
+p=sys.argv[1];s=open(p).read()
+B='<!-- gamepad:start -->\n<script src="gamepad.js?v=2"></script>\n<script src="gamepad-config.js?v=2"></script>\n<!-- gamepad:end -->\n'
+s=re.sub(r'<!-- gamepad:start -->.*?<!-- gamepad:end -->\n?','',s,flags=re.S);i=s.rfind('</body>');open(p,'w').write(s[:i]+B+s[i:])
+PY
