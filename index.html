@@ -42,7 +42,7 @@ const ST={get(k,d){try{const v=localStorage.getItem(GAME_ID+':'+k);return v==nul
 // ---------- safe area + layout
 let SAFE={t:0,r:0,b:0,l:0};
 function readSafe(){try{if(window.__SAFE){SAFE=Object.assign({t:0,r:0,b:0,l:0},window.__SAFE);return}const d=document.createElement('div');d.style.cssText='position:fixed;top:0;left:0;width:0;height:0;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)';document.body.appendChild(d);const cs=getComputedStyle(d);SAFE={t:parseFloat(cs.paddingTop)||0,r:parseFloat(cs.paddingRight)||0,b:parseFloat(cs.paddingBottom)||0,l:parseFloat(cs.paddingLeft)||0};d.remove()}catch(e){}}
-let DPR=1,SC=1,OXs=0,OYs=0,LH=600,BY=HUDH,EXTRA=0,DPAD=null,dpadOn=ST.get('dpad',true);
+let DPR=1,SC=1,OXs=0,OYs=0,LH=600,BY=HUDH,EXTRA=0,DPAD=null,dpadOn=false;
 let menuBtns=[],BTN=[],UI=[],lastUI=[];
 function onResize(){DPR=Math.min(devicePixelRatio||1,3);readSafe();c.width=Math.round(innerWidth*DPR);c.height=Math.round(innerHeight*DPR);
  const aw=Math.max(120,innerWidth-SAFE.l-SAFE.r),ah=Math.max(120,innerHeight-SAFE.t-SAFE.b);
@@ -466,7 +466,7 @@ function drawTitle(){dim(.58);const best=ST.get('best',0),maxL=ST.get('maxL',1);
  let y=60+22;const s1=fitSize("JIMOTHY'S",40,LW-40);const s2=fitSize('CROSSING',48,LW-40);txt("JIMOTHY'S",LW/2,y,s1,'#ffd23f','center',{stroke:7,sc:'#16324f'});y+=s1*.6+s2*.6+3;
 txt('CROSSING',LW/2,y,s2,'#ffffff','center',{stroke:7,sc:'#16324f'});y+=s2*.6+16;
  const tag="Help Seattle's famous raccoon cross the city!";txt(tag,LW/2,y,fitSize(tag,13,LW-30),'#cfe3ff');y+=16;
- const bl=[['▶  PLAY','#2e9e5b',()=>start(1)]];if(maxL>1)bl.push(['CONTINUE AT LEVEL '+maxL,'#2b6cb0',()=>start(maxL)]);bl.push(['HOW TO PLAY','#8d5bd6',showHelp]);bl.push(['D-PAD: '+(dpadOn?'ON':'OFF'),'#56616e',toggleDpad]);
+ const bl=[['▶  PLAY','#2e9e5b',()=>start(1)]];if(maxL>1)bl.push(['CONTINUE AT LEVEL '+maxL,'#2b6cb0',()=>start(maxL)]);bl.push(['HOW TO PLAY','#8d5bd6',showHelp]);
  const bh=44,gap=10,bw=Math.min(250,LW-40),bestY=LH-16-(LH>=600?58:0),btop=bestY-18-bl.length*(bh+gap)+gap;
  const area=btop-12-y;if(area>70){const s=Math.min(1.7,area/122),cy=y+46*s+(area-118*s)/2;drawJimFront(LW/2,cy,s,gt)}
  bl.forEach((b,i)=>button(b[0],LW/2-bw/2,btop+i*(bh+gap),bw,bh,b[1],b[2],{sz:b[0].length>14?16:19}));
@@ -493,11 +493,11 @@ let overAt=-9;
 function toTitle(){state='title';paused=false;G=null;pops=[];pickups=[];buildLevel(1);lt=0;chrome();playSong('title')}
 const _go=gameOver;gameOver=function(){_go();overAt=gt};
 function togglePause(){if(state!='play')return;paused=!paused;holdDir=null;swipe=null;dpadPtr=null;if(!paused)queue=[];chrome()}
-function toggleDpad(){dpadOn=!dpadOn;ST.set('dpad',dpadOn);onResize()}
+function toggleDpad(){}
 function chrome(){$('pause').style.display=state=='play'?'block':'none';$('mute').style.display='block';$('help').style.display='block';$('pause').textContent=paused?'▶':'⏸';$('pause').setAttribute('aria-label',paused?'Resume':'Pause');try{if(window.__dock)__dock.tick()}catch(e){}}
 function showHelp(){if(state=='play'&&!paused)togglePause();panelOpen=true;$('ptext').innerHTML=`<h2>🦝 Jimothy's Crossing</h2>
 <p>Jimothy, Seattle's famous chunky raccoon, is waddling home! Hop him across busy streets and the Sound and tuck him into all <b>5 trash-can dens</b> at the top.</p>
-<h3>Controls</h3><ul><li><b>Swipe</b> up / down / left / right to hop one space.</li><li><b>Tap</b> anywhere to hop forward.</li><li>Or use the <b>D-pad</b> (hold to keep hopping) or arrow keys / WASD.</li><li>Quick taps are remembered, so you can chain hops.</li></ul>
+<h3>Controls</h3><ul><li><b>Swipe</b> up / down / left / right to hop one space.</li><li><b>Tap</b> anywhere to hop forward.</li><li>On a computer, use the arrow keys or WASD.</li><li>Quick taps are remembered, so you can chain hops.</li></ul>
 <h3>Watch out</h3><ul><li>Cars, Metro buses, trucks, bikes and scooters.</li><li>🚈 Light rail: when the lights flash and the bell rings, a train is coming!</li><li>🌊 Jimothy can't swim. Ride logs, ferries and crates. Crates that wobble are about to sink!</li><li>Don't get carried off the edge of the screen.</li><li>Level 3+: a seagull on the promenade and crows that sit in the dens.</li><li>Level 4+: orcas. Ride the back, never the mouth!</li></ul>
 <h3>Points</h3><table><tr><td>Each new row forward</td><td>10</td></tr><tr><td>Reaching a den</td><td>50 + time bonus</td></tr><tr><td>🥤 Soda can / 🍕 Pizza box / 🗑️ Trash can</td><td>20 / 50 / 100</td></tr><tr><td>Grab trash quickly in a row</td><td>combo up to x4</td></tr><tr><td>✨ Golden can (rare)</td><td>500 + full timer</td></tr><tr><td>🪲 June bug in a den</td><td>200</td></tr><tr><td>🦝 Bring the baby raccoon home</td><td>200</td></tr><tr><td>All 5 dens filled</td><td>1000</td></tr></table>
 <p>Extra life every 10,000 points. Each level gets faster and busier, with sunsets, Seattle rain and night shifts. Your best scores are saved on this device.</p>`;$('panel').style.display='flex'}
