@@ -42,7 +42,7 @@ const ST={get(k,d){try{const v=localStorage.getItem(GAME_ID+':'+k);return v==nul
 // ---------- safe area + layout
 let SAFE={t:0,r:0,b:0,l:0};
 function readSafe(){try{if(window.__SAFE){SAFE=Object.assign({t:0,r:0,b:0,l:0},window.__SAFE);return}const d=document.createElement('div');d.style.cssText='position:fixed;top:0;left:0;width:0;height:0;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)';document.body.appendChild(d);const cs=getComputedStyle(d);SAFE={t:parseFloat(cs.paddingTop)||0,r:parseFloat(cs.paddingRight)||0,b:parseFloat(cs.paddingBottom)||0,l:parseFloat(cs.paddingLeft)||0};d.remove()}catch(e){}}
-let DPR=1,SC=1,OXs=0,OYs=0,LH=600,BY=HUDH,EXTRA=0,DPAD=null,TZON=!['32bit','64bit','2000s','modern','hyperreal'].includes((new URLSearchParams(location.search).get('mode')||'').toLowerCase()),dpadOn=TZON?false:ST.get('dpad',true);
+let DPR=1,SC=1,OXs=0,OYs=0,LH=600,BY=HUDH,EXTRA=0,DPAD=null,dpadOn=ST.get('dpad',true);
 let menuBtns=[],BTN=[],UI=[],lastUI=[];
 function onResize(){DPR=Math.min(devicePixelRatio||1,3);readSafe();c.width=Math.round(innerWidth*DPR);c.height=Math.round(innerHeight*DPR);
  const aw=Math.max(120,innerWidth-SAFE.l-SAFE.r),ah=Math.max(120,innerHeight-SAFE.t-SAFE.b);
@@ -150,7 +150,7 @@ function startLevel(L,first){G.L=L;ST.set('maxL',Math.max(ST.get('maxL',1),L));G
  G.gull=L>=3?{x:R()<.5?20:LW-20,dir:R()<.5?1:-1,sp:26+L*2,wait:0}:null;
  initDrops();respawn();playSong(G.w=='night'||G.w=='storm'||G.w=='rain'?'night':'day');
  addPop('LEVEL '+L,LW/2,BY+6.5*T,'banner',{life:2.3,col:'#ffd23f',sub:WNAME[G.w]});
- const tip=L==1?(ST.get('played',0)?'':(TZON?'TOUCH AROUND JIMOTHY TO HOP!':'SWIPE OR TAP TO HOP!')):L==2?'RESCUE THE BABY RACCOON ON THE LOGS: +200':L==3?'WATCH OUT FOR SEAGULLS AND CROWS!':L==4?'ORCAS! RIDE THE BACK, NOT THE MOUTH':'';
+ const tip=L==1?(ST.get('played',0)?'':'SWIPE OR TAP TO HOP!'):L==2?'RESCUE THE BABY RACCOON ON THE LOGS: +200':L==3?'WATCH OUT FOR SEAGULLS AND CROWS!':L==4?'ORCAS! RIDE THE BACK, NOT THE MOUTH':'';
  if(tip)addPop(tip,LW/2,BY+10.5*T,'msg',{life:3.2,col:'#ffffff',size:13,pri:5})}
 function respawn(){Object.assign(J,{row:13,rowF:13,x:colX(5),hopping:false,dead:false,dir:'up',ang:0,plat:null,drift:0,best:13,carry:false,land:0,visible:true});queue=[];G.time=TIME_MAX;G.tickS=99}
 // ---------- input → hops (grid snapped, buffered)
@@ -214,7 +214,6 @@ function update(dt){gt+=dt;lt+=dt;updRail(dt);
  else if(J.plat){const p=J.plat;J.x+=p.l.dir*p.l.speed*dt;const q=platAt(J.row,J.x,lt,7);if(!q||q.o!==p.o){die(J.x<6||J.x>LW-6?'swept':'splash');return}J.plat=q;if(orcaHead(q,J.x)){die('orca');return}if(J.x<5||J.x>LW-5){die('swept');return}}
  if(J.dead)return;
  if(!J.hopping&&J.land<=0.04&&queue.length){while(queue.length&&gt-queue[0].t>.45)queue.shift();if(queue.length)doHop(queue.shift().d)}
- if(TZON&&window.__tzTick)__tzTick();
  if(holdDir&&!J.hopping&&!queue.length&&gt>=holdT){if(doHop(holdDir))holdT=gt+.16;else holdT=gt+.3}
  collide();if(J.dead)return;collect()}
 function updRail(dt){const r=rail;if(!r)return;const sm=G?spMul(G.L):1;r.speed0=330+(G?G.L:1)*24;r.len0=r.len0||T*4.8;
@@ -442,7 +441,7 @@ function drawBar(){const y=BY+BH;g.fillStyle='#0d1b2a';g.fillRect(-400,y,LW+800,
  const tx=ix+16;txt('TIME',tx,y+BARH/2+1,11,'#cfe3ff','left');setFont(11);const bx=tx+g.measureText('TIME').width+6,bw=LW-8-bx,f=CL(G.time/TIME_MAX,0,1);
  rr(bx,y+BARH/2-5,bw,10,5,'#2a3d52');rr(bx,y+BARH/2-5,Math.max(10,bw*f),10,5,f>.5?'#3ddc84':f>.22?'#ffd23f':(Math.floor(gt*6)%2?'#ff4d4d':'#ff9a9a'))}
 function wIcon(w,x,y){if(w=='day')el(x,y,5,5,'#ffd23f');else if(w=='dusk'){el(x,y+1,5,5,'#ff8c42');g.fillStyle='#0d1b2a';g.fillRect(x-6,y+2,12,5)}else if(w=='rain'){el(x,y-1,6,3.5,'#cfd8e0');g.fillStyle='#7fc4ff';g.fillRect(x-3,y+3,1,3);g.fillRect(x+1,y+3,1,3)}else{el(x,y,5,5,'#f6f1d5');el(x+2,y-2,4.5,4.5,'#0d1b2a');if(w=='storm'){g.fillStyle='#ffd23f';g.fillRect(x+3,y+1,1.5,4)}}}
-function drawControls(){if(TZON){if(EXTRA>=100){const cy=BY+BH+BARH+EXTRA/2,a='TOUCH ABOVE / BELOW / LEFT / RIGHT',b2='OF JIMOTHY OR HERE  •  HOLD TO KEEP HOPPING';txt(a,LW/2,cy-9,fitSize(a,12,LW-20),'rgba(255,255,255,.55)','center',{sh:false});txt(b2,LW/2,cy+9,fitSize(b2,12,LW-20),'rgba(255,255,255,.55)','center',{sh:false})}else if(EXTRA>=26){const s='TOUCH AROUND JIMOTHY TO HOP  •  HOLD TO KEEP GOING';txt(s,LW/2,BY+BH+BARH+Math.min(EXTRA,60)/2,fitSize(s,12,LW-20),'rgba(255,255,255,.6)','center',{sh:false})}return}if(DPAD){const d=DPAD;g.globalAlpha=.9;el(d.cx,d.cy,d.s/2,d.s/2,'rgba(255,255,255,.06)');for(const b of d.btns){const on=holdDir==b.d&&dpadPtr!=null;rr(b.x,b.y,b.w,b.h,12,on?'rgba(255,210,63,.55)':'rgba(255,255,255,.14)');g.strokeStyle='rgba(255,255,255,.5)';g.lineWidth=2;g.beginPath();g.roundRect?g.roundRect(b.x,b.y,b.w,b.h,12):g.rect(b.x,b.y,b.w,b.h);g.stroke();
+function drawControls(){if(DPAD){const d=DPAD;g.globalAlpha=.9;el(d.cx,d.cy,d.s/2,d.s/2,'rgba(255,255,255,.06)');for(const b of d.btns){const on=holdDir==b.d&&dpadPtr!=null;rr(b.x,b.y,b.w,b.h,12,on?'rgba(255,210,63,.55)':'rgba(255,255,255,.14)');g.strokeStyle='rgba(255,255,255,.5)';g.lineWidth=2;g.beginPath();g.roundRect?g.roundRect(b.x,b.y,b.w,b.h,12):g.rect(b.x,b.y,b.w,b.h);g.stroke();
   const cx=b.x+b.w/2,cy=b.y+b.h/2,a={up:-PI/2,down:PI/2,left:PI,right:0}[b.d],s=b.w*.22;g.fillStyle='#fff';g.beginPath();g.moveTo(cx+Math.cos(a)*s,cy+Math.sin(a)*s);g.lineTo(cx+Math.cos(a+2.4)*s,cy+Math.sin(a+2.4)*s);g.lineTo(cx+Math.cos(a-2.4)*s,cy+Math.sin(a-2.4)*s);g.fill();UI.push({x:b.x,y:b.y,w:b.w,h:b.h,k:'btn',s:'dpad-'+b.d})}g.globalAlpha=1;
   const room=(LW-d.s)/2-12;if(room>60){const sz=fitSize('SWIPE',11,room);txt('SWIPE',(LW-d.s)/4,d.cy-8,sz,'rgba(255,255,255,.55)','center',{sh:false});txt('ANYWHERE',(LW-d.s)/4,d.cy+8,sz,'rgba(255,255,255,.55)','center',{sh:false});txt('TAP =',LW-(LW-d.s)/4,d.cy-8,sz,'rgba(255,255,255,.55)','center',{sh:false});txt('HOP UP',LW-(LW-d.s)/4,d.cy+8,sz,'rgba(255,255,255,.55)','center',{sh:false})}}
  else if(EXTRA>=26){const s='SWIPE TO HOP  •  TAP = HOP UP';txt(s,LW/2,BY+BH+BARH+Math.min(EXTRA,60)/2,fitSize(s,12,LW-20),'rgba(255,255,255,.6)','center',{sh:false})}}
@@ -467,7 +466,7 @@ function drawTitle(){dim(.58);const best=ST.get('best',0),maxL=ST.get('maxL',1);
  let y=60+22;const s1=fitSize("JIMOTHY'S",40,LW-40);const s2=fitSize('CROSSING',48,LW-40);txt("JIMOTHY'S",LW/2,y,s1,'#ffd23f','center',{stroke:7,sc:'#16324f'});y+=s1*.6+s2*.6+3;
 txt('CROSSING',LW/2,y,s2,'#ffffff','center',{stroke:7,sc:'#16324f'});y+=s2*.6+16;
  const tag="Help Seattle's famous raccoon cross the city!";txt(tag,LW/2,y,fitSize(tag,13,LW-30),'#cfe3ff');y+=16;
- const bl=[['▶  PLAY','#2e9e5b',()=>start(1)]];if(maxL>1)bl.push(['CONTINUE AT LEVEL '+maxL,'#2b6cb0',()=>start(maxL)]);bl.push(['HOW TO PLAY','#8d5bd6',showHelp]);if(!TZON)bl.push(['D-PAD: '+(dpadOn?'ON':'OFF'),'#56616e',toggleDpad]);
+ const bl=[['▶  PLAY','#2e9e5b',()=>start(1)]];if(maxL>1)bl.push(['CONTINUE AT LEVEL '+maxL,'#2b6cb0',()=>start(maxL)]);bl.push(['HOW TO PLAY','#8d5bd6',showHelp]);bl.push(['D-PAD: '+(dpadOn?'ON':'OFF'),'#56616e',toggleDpad]);
  const bh=44,gap=10,bw=Math.min(250,LW-40),bestY=LH-16-(LH>=600?58:0),btop=bestY-18-bl.length*(bh+gap)+gap;
  const area=btop-12-y;if(area>70){const s=Math.min(1.7,area/122),cy=y+46*s+(area-118*s)/2;drawJimFront(LW/2,cy,s,gt)}
  bl.forEach((b,i)=>button(b[0],LW/2-bw/2,btop+i*(bh+gap),bw,bh,b[1],b[2],{sz:b[0].length>14?16:19}));
@@ -493,12 +492,12 @@ function render(){UI=[];menuBtns=[];g.setTransform(1,0,0,1,0,0);g.fillStyle='#0b
 let overAt=-9;
 function toTitle(){state='title';paused=false;G=null;pops=[];pickups=[];buildLevel(1);lt=0;chrome();playSong('title')}
 const _go=gameOver;gameOver=function(){_go();overAt=gt};
-function togglePause(){if(state!='play')return;paused=!paused;holdDir=null;swipe=null;dpadPtr=null;tz=null;if(!paused)queue=[];chrome()}
+function togglePause(){if(state!='play')return;paused=!paused;holdDir=null;swipe=null;dpadPtr=null;if(!paused)queue=[];chrome()}
 function toggleDpad(){dpadOn=!dpadOn;ST.set('dpad',dpadOn);onResize()}
 function chrome(){$('pause').style.display=state=='play'?'block':'none';$('mute').style.display='block';$('help').style.display='block';$('pause').textContent=paused?'▶':'⏸';$('pause').setAttribute('aria-label',paused?'Resume':'Pause');try{if(window.__dock)__dock.tick()}catch(e){}}
 function showHelp(){if(state=='play'&&!paused)togglePause();panelOpen=true;$('ptext').innerHTML=`<h2>🦝 Jimothy's Crossing</h2>
 <p>Jimothy, Seattle's famous chunky raccoon, is waddling home! Hop him across busy streets and the Sound and tuck him into all <b>5 trash-can dens</b> at the top.</p>
-`+(TZON?`<h3>Controls</h3><ul><li><b>Touch</b> above, below, left or right of Jimothy to hop that way.</li><li><b>Hold</b> your finger down to keep hopping; slide it to change direction.</li><li>The empty space under the street works too: touch above, below, left or right of its middle.</li><li>Or use the arrow keys / WASD.</li></ul>`:`<h3>Controls</h3><ul><li><b>Swipe</b> up / down / left / right to hop one space.</li><li><b>Tap</b> anywhere to hop forward.</li><li>Or use the <b>D-pad</b> (hold to keep hopping) or arrow keys / WASD.</li><li>Quick taps are remembered, so you can chain hops.</li></ul>`)+`
+<h3>Controls</h3><ul><li><b>Swipe</b> up / down / left / right to hop one space.</li><li><b>Tap</b> anywhere to hop forward.</li><li>Or use the <b>D-pad</b> (hold to keep hopping) or arrow keys / WASD.</li><li>Quick taps are remembered, so you can chain hops.</li></ul>
 <h3>Watch out</h3><ul><li>Cars, Metro buses, trucks, bikes and scooters.</li><li>🚈 Light rail: when the lights flash and the bell rings, a train is coming!</li><li>🌊 Jimothy can't swim. Ride logs, ferries and crates. Crates that wobble are about to sink!</li><li>Don't get carried off the edge of the screen.</li><li>Level 3+: a seagull on the promenade and crows that sit in the dens.</li><li>Level 4+: orcas. Ride the back, never the mouth!</li></ul>
 <h3>Points</h3><table><tr><td>Each new row forward</td><td>10</td></tr><tr><td>Reaching a den</td><td>50 + time bonus</td></tr><tr><td>🥤 Soda can / 🍕 Pizza box / 🗑️ Trash can</td><td>20 / 50 / 100</td></tr><tr><td>Grab trash quickly in a row</td><td>combo up to x4</td></tr><tr><td>✨ Golden can (rare)</td><td>500 + full timer</td></tr><tr><td>🪲 June bug in a den</td><td>200</td></tr><tr><td>🦝 Bring the baby raccoon home</td><td>200</td></tr><tr><td>All 5 dens filled</td><td>1000</td></tr></table>
 <p>Extra life every 10,000 points. Each level gets faster and busier, with sunsets, Seattle rain and night shifts. Your best scores are saved on this device.</p>`;$('panel').style.display='flex'}
@@ -507,28 +506,19 @@ $('pclose').onclick=e=>{e.stopPropagation();$('panel').style.display='none';pane
 $('mute').onclick=e=>{e.stopPropagation();A();setMute(!muted);if(!muted&&!musicOn)playSong(state=='title'?'title':songName||'day')};
 $('pause').onclick=e=>{e.stopPropagation();A();togglePause()};
 $('help').onclick=e=>{e.stopPropagation();A();showHelp()};
-// Touch-to-steer (Peter 10/28, Original look): no drawn D-pad. Touch above / below / left / right of Jimothy and he hops
-// that way; hold to keep hopping; slide your finger to turn. The empty strip under the street is an invisible D-pad (direction from its middle).
-const inR0=(b,x,y,p=0)=>x>=b.x-p&&x<=b.x+b.w+p&&y>=b.y-p&&y<=b.y+b.h+p;
-function jimXY(){let x=J.x,y=BY+J.rowF*T+T/2;try{const R=window.__R3D;if(R&&R.ready&&R.mapXY){const p=R.mapXY(x,y);if(isFinite(p[0])&&isFinite(p[1]))return p}}catch(e){}return[x,y]}
-function tzDir(x,y){let cx,cy,dz;if(EXTRA>=100&&y>BY+BH+BARH+Math.min(40,EXTRA*.3)){cx=LW/2;cy=BY+BH+BARH+EXTRA/2;dz=14}else{[cx,cy]=jimXY();dz=T*.55}
- const dx=x-cx,dy=y-cy;if(Math.abs(dx)<dz&&Math.abs(dy)<dz)return null;return Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up')}
-function tzTick(){if(!tz||state!='play'||paused)return;const d=tzDir(tz.x,tz.y);if(d!=holdDir){holdDir=d;if(d){holdT=gt+.24;if(!J.hopping)tryMove(d)}}}
-window.__tzTick=tzTick;
 // ---------- input: swipe anywhere, tap = hop up, D-pad with hold-repeat, keyboard
-let swipe=null,dpadPtr=null,downBtn=null,tz=null;
+let swipe=null,dpadPtr=null,downBtn=null;
 const inR=(b,x,y,p=0)=>x>=b.x-p&&x<=b.x+b.w+p&&y>=b.y-p&&y<=b.y+b.h+p;
 c.addEventListener('pointerdown',e=>{e.preventDefault();A();if(!musicOn)playSong(state=='play'&&G?(G.w=='day'||G.w=='dusk'?'day':'night'):'title');const [x,y]=toL(e.clientX,e.clientY);
  if(state!='play'||paused){downBtn=menuBtns.find(b=>inR(b,x,y,4))||null;return}
- if(TZON){if(tz)return;const d=tzDir(x,y);tz={id:e.pointerId,x,y};dpadPtr=e.pointerId;holdDir=d;holdT=gt+.24;tryMove(d||'up');return}
  if(DPAD){const b=DPAD.btns.find(b=>inR(b,x,y,8));if(b){dpadPtr=e.pointerId;holdDir=b.d;holdT=gt+.24;tryMove(b.d);return}}
  swipe={id:e.pointerId,x:e.clientX,y:e.clientY,t0:performance.now(),fired:false}},{passive:false});
-c.addEventListener('pointermove',e=>{if(tz){if(tz.id===e.pointerId){const [x,y]=toL(e.clientX,e.clientY);tz.x=x;tz.y=y;tzTick()}return}if(dpadPtr===e.pointerId&&DPAD){const [x,y]=toL(e.clientX,e.clientY);const b=DPAD.btns.find(b=>inR(b,x,y,8));if(b&&b.d!=holdDir){holdDir=b.d;holdT=gt+.24;tryMove(b.d)}return}
+c.addEventListener('pointermove',e=>{if(dpadPtr===e.pointerId&&DPAD){const [x,y]=toL(e.clientX,e.clientY);const b=DPAD.btns.find(b=>inR(b,x,y,8));if(b&&b.d!=holdDir){holdDir=b.d;holdT=gt+.24;tryMove(b.d)}return}
  if(!swipe||swipe.id!==e.pointerId)return;const dx=e.clientX-swipe.x,dy=e.clientY-swipe.y,th=Math.max(16,Math.min(26,innerWidth*.055));
  const d=Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up');
  // one flick = one hop; keep dragging well past it (or turn) to chain more hops
  if(Math.hypot(dx,dy)>=(swipe.last==d?th*3.2:th)){tryMove(d);swipe.x=e.clientX;swipe.y=e.clientY;swipe.fired=true;swipe.last=d}});
-function ptrEnd(e){if(tz&&tz.id===e.pointerId){tz=null;dpadPtr=null;holdDir=null}if(dpadPtr===e.pointerId){dpadPtr=null;holdDir=null}
+function ptrEnd(e){if(dpadPtr===e.pointerId){dpadPtr=null;holdDir=null}
  if(swipe&&swipe.id===e.pointerId){if(!swipe.fired&&performance.now()-swipe.t0<450)tryMove('up');swipe=null}
  if(downBtn&&e.type=='pointerup'){const [x,y]=toL(e.clientX,e.clientY);const b=menuBtns.find(b=>inR(b,x,y,6));if(b&&b.x==downBtn.x&&b.y==downBtn.y){SFX.click();b.fn()}}downBtn=null}
 c.addEventListener('pointerup',ptrEnd);c.addEventListener('pointercancel',ptrEnd);
