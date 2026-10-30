@@ -16,3 +16,10 @@ p=sys.argv[1];s=open(p).read()
 B='<!-- gamepad:start -->\n<script src="gamepad.js?v=2"></script>\n<script src="gamepad-config.js?v=2"></script>\n<!-- gamepad:end -->\n'
 s=re.sub(r'<!-- gamepad:start -->.*?<!-- gamepad:end -->\n?','',s,flags=re.S);i=s.rfind('</body>');open(p,'w').write(s[:i]+B+s[i:])
 PY
+# Studio logo (Peter 10/30): re-add the tiny title-screen logo after every rebuild
+python3 - "$PWD/index.html" <<'PY'
+import sys,re
+p=sys.argv[1];s=open(p).read()
+B='<script src="studio-logo.js?v=1" data-src="studio-logo.webp" data-alt="Book of Heaven Studios" data-when="state===\'title\'" data-corner="br" data-cornerl="br" data-h="54" data-hl="46"></script>\n'
+s=re.sub(r'<script src="studio-logo\.js[^>]*></script>\n?','',s);i=s.rfind('</body>');open(p,'w').write(s[:i]+B+s[i:])
+PY
